@@ -4,7 +4,7 @@ This document demonstrates a minimalist example of how to write a CHAP-compatibl
 
 The model simply learns a linear regression from rainfall and temperature to disease cases in the same month, without considering any previous disease or climate data. It also assumes and works only with a single region. The model is not meant to accurately capture any interesting relations - the purpose is just to show how CHAP integration works in a simplest possible setting.
 
-## Setting Up the Environment
+## Requirements
 
 Before running this example, you need to have [uv](https://docs.astral.sh/uv/) installed on your system. If you don't have it, install it with:
 
@@ -12,13 +12,7 @@ Before running this example, you need to have [uv](https://docs.astral.sh/uv/) i
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Then set up the project environment:
-
-```bash
-uv sync
-```
-
-This will create a virtual environment and install all dependencies automatically.
+No other setup is needed - `uv run` will automatically create the virtual environment and install dependencies on first use.
 
 ## Running the model without CHAP integration
 
@@ -139,5 +133,5 @@ To create a new model from scratch, you can use the `chap init` command:
 ```bash
 chap init my_new_model
 cd my_new_model
-uv sync
+python isolated_run.py  # Test the model
 ```
