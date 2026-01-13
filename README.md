@@ -46,24 +46,19 @@ To quickly test everything works, run:
 uv run python isolated_run.py
 ```
 
-This will train the model and generate predictions using the sample data. After running, check the `output/` directory:
+This will train the model and generate predictions using the sample data. After running, check the `output/` directory. You should see:
 
 - `output/model.pkl` - the trained model
 - `output/predictions.csv` - predicted disease cases
 
-Open `predictions.csv` to see the forecasted values for each time period and location.
+Open `predictions.csv` to see the forecasted values for each time period and location. 
+The predictions will be in a column named `sample_0`. Note that a model may give multiple samples, 
+in which case there will be additional columns named `sample_1`, `sample_2`, etc.
 
-You can also run the commands manually:
 
 ### Training the model
 
-The file `train.py` contains the code to train a model. Run it with:
-
-```bash
-uv run python train.py input/trainData.csv output/model.pkl
-```
-
-The train command reads training data from a CSV file into a Pandas dataframe. It learns a linear regression from `rainfall` and `mean_temperature` (X) to `disease_cases` (Y). The trained model is stored to file using the joblib library:
+The train command is in the file `train.py` and reads training data from a CSV file into a Pandas dataframe. It learns a linear regression from `rainfall` and `mean_temperature` (X) to `disease_cases` (Y). The trained model is stored to file using the joblib library:
 
 ```python
 def train(train_data_path, model_path):
@@ -78,13 +73,7 @@ def train(train_data_path, model_path):
 
 ### Generating forecasts
 
-Run the predict command to forecast disease cases based on future climate data and the previously trained model:
-
-```bash
-uv run python predict.py output/model.pkl input/trainData.csv input/futureClimateData.csv output/predictions.csv
-```
-
-The predict command loads the trained model and applies it to future climate data, outputting disease forecasts as a CSV file:
+The predict function is in the file `predict.py` and generates forecasts of disease cases based on future climate data and the previously trained model:
 
 ```python
 def predict(model_path, historic_data_path, future_data_path, out_file_path):
@@ -100,25 +89,16 @@ def predict(model_path, historic_data_path, future_data_path, out_file_path):
 
 ## Making model alterations
 
-Here are some modifications you can try:
+We currently use a simple Linear Regression model from sklearn. Sklearn also supports other model types like Random Forest.
+You can try make changes to train.py to experiment with using the random forest model. The class you will need to import is 
+`RandomForestRegressor` from `sklearn.ensemble`.
 
-### Change the model type
-
-Replace `LinearRegression` with a different sklearn model:
-
-```python
-# Original
-from sklearn.linear_model import LinearRegression
-reg = LinearRegression()
-
-# Try Ridge regression instead
-from sklearn.linear_model import Ridge
-reg = Ridge(alpha=1.0)
-```
 
 ### Add or remove features
 
-Modify which columns are used as input features:
+You can also experiment with changing which features are used for training and prediction.
+
+For instance to only use rainfall as a feature, modify the following lines in both `train.py` and `predict.py`:
 
 ```python
 # Original uses rainfall and mean_temperature
@@ -130,25 +110,13 @@ features = df[["rainfall"]]
 
 ### Test your changes
 
-After making changes, run the isolated test to verify everything works:
+After making changes, always remember to run the isolated test to verify everything works.
 
-```bash
-uv run python isolated_run.py
-```
 
 Check that:
 - The script runs without errors
 - Output files are generated in the `output/` directory
 
-### Commit and push your changes
-
-Once your modifications work, save them to your fork:
-
-```bash
-git add .
-git commit -m "Modified model: [describe your change]"
-git push origin main
-```
 
 ## Running the minimalist model as part of CHAP
 
