@@ -7,4 +7,7 @@ dependencies = [
     "pandas",
     "scikit-learn",
     "joblib",
+    "torch>=2.10.0",
+    "matplotlib>=3.10.8",
+    "tensorboard>=2.20.0",
 ]
