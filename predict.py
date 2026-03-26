@@ -1,13 +1,20 @@
-"""Generate predictions using a trained model."""
+"""Generate predictions using a trained model provider."""
 
 import argparse
 
-import joblib
 import pandas as pd
+import torch
+from model_provider import load_provider
+
+FEATURE_COLS = [
+    "rainfall",
+    "mean_temperature",
+    "population",
+]
 
 
 def predict(model_path, historic_data_path, future_data_path, out_file_path):
-    """Generate predictions using the trained model.
+    """Generate predictions using a trained model provider.
 
     Parameters
     ----------
@@ -20,13 +27,23 @@ def predict(model_path, historic_data_path, future_data_path, out_file_path):
     out_file_path : str
         Path where predictions will be saved.
     """
-    model = joblib.load(model_path)
-    future_df = pd.read_csv(future_data_path)
-    features = future_df[["rainfall", "mean_temperature"]].fillna(0)
+    provider = load_provider(model_path)
 
-    predictions = model.predict(features)
+    # Load normalization stats saved during training
+    stats_path = model_path + ".stats"
+    stats = torch.load(stats_path, weights_only=False)
+    train_mean = pd.Series(stats["mean"])
+    train_std = pd.Series(stats["std"])
+
+    future_df = pd.read_csv(future_data_path)
+    features = future_df[FEATURE_COLS].fillna(0)
+    features = (features - train_mean) / train_std
+
+    X = torch.tensor(features.values, dtype=torch.float32)
+    predictions = provider.predict(X)
+
     output_df = future_df[["time_period", "location"]].copy()
-    output_df["sample_0"] = predictions
+    output_df["sample_0"] = predictions.squeeze().tolist()
     output_df.to_csv(out_file_path, index=False)
     print(f"Predictions saved to {out_file_path}")
 

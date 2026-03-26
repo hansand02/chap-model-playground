@@ -4,10 +4,10 @@ This script demonstrates how to train and predict using the model directly,
 which is useful for development and debugging before integrating with CHAP.
 """
 
-from train import train
 from predict import predict
+from train import train
 
-# Train the model
+# Train the model using the ensemble provider
 train("input/trainData.csv", "output/model.pkl")
 
 # Generate predictions
